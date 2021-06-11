@@ -1,3 +1,4 @@
+/*
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -9,20 +10,26 @@
 #include <sys/types.h>
 #include <time.h>
 
-/* 타이머  */
+*/
+/* 타이머  *//*
+
 #define CCHAR 0
 #ifdef CTIME
 #undef CTIME
 #endif
 #define CTIME 1
 
-/* 방향키, 회전키 설정*/
+*/
+/* 방향키, 회전키 설정*//*
+
 #define LEFT 0
 #define RIGHT 1
 #define DOWN 2
 #define ROTATE 3
 
-/* 테트로 미노 블록넘버 설정*/
+*/
+/* 테트로 미노 블록넘버 설정*//*
+
 #define I_BLOCK 0
 #define	T_BLOCK 1
 #define S_BLOCK 2
@@ -31,10 +38,13 @@
 #define J_BLOCK 5
 #define O_BLOCK 6
 
-/* 게임 시작, 종료 설정*/
+*/
+/* 게임 시작, 종료 설정*//*
+
 #define GAME_START 0
 #define GAME_END 1
 
+*/
 /*
  * 테트로 미노 블록들(I, T, S, Z, L, J, O) 은
  * 4*4 배열의 2차원 배열로
@@ -43,7 +53,8 @@
  * 각 테트로미노 블록은
  *회전할때마다 4개의 상태를 표현하기 위해
  *4*4*4의 3차원 배열이됨
- */
+ *//*
+
 
 char i_block[4][4][4] =
 	{
@@ -101,17 +112,21 @@ char o_block[4][4][4] =
 			1, 1, 0, 0,    1, 1, 0, 0,    0, 0, 0, 0,    0, 0, 0, 0,
 	};
 
+*/
 /* 테트리스 판을 2차원 배열로 표현
  * 양옆 2줄과 맨 아래 한줄은 벽
  * 따라서  20*8 이
  * 실제 테트로미노 블록들이
- * 움직이고 놓이는 공간이됨*/
+ * 움직이고 놓이는 공간이됨*//*
+
 char tetris_table[21][10];
 
+*/
 /* 게임 종료때 마다
  * 이름과 득점점수와
  * 날짜, 시간이저장되는 구조체
- * */
+ * *//*
+
 static struct result
 {
 	char name[30];
@@ -124,26 +139,76 @@ static struct result
 	int rank;
 }temp_result;
 
-int block_number = 0;  /*현재 블록 넘버 변수*/
-int next_block_number = 0; /*다음 블록 넘버 변수 */
-int block_state = 0; /*블록 상태, 회전함에 따라 변한다*/
-int x = 3, y = 0; /*블록이 현재 테트리스판 어디에 위치해 있는지 알려주는 변수*/
-int game = GAME_END; /*게임 상태 변수, 게임이 시작되거나 종료됨에 따라 변한다*/
-int best_point = 0; /* 게임 최고 점수를 알려주는 변수*/
-long point = 0; /* 현재 게임중 득점을 알려주는 변수 */
+int block_number = 0;  */
+/*현재 블록 넘버 변수*//*
 
-int display_menu(void); /* 메뉴를 보여줌 */
-int init_tetris_table(void); /*테트리스판을 초기화 한다. 벽과 공간을 나눔*/
-int display_tetris_table(void); /* 현재의 테트리스판을 보여준다. 블록이 놓이고 쌓인 현재 상태를 보여줌*/
-int game_start(void); /* 게임 시작시 호출되는 함수.   game변수를 참조하여 게임을 종료하거나 시작함 . 게임 시작시 refresh()함수가 콜백함수로 설정되고 타이머를 등록함. */
-int refresh(int);/* 타이머에 콜백함수로 등록되어 계속 새로고침 하면서 호출되는 함수. 키입력 확인,  화면새로고침, 한줄완성검사등의 계속 상태가 변함을 확인해야 되는 함수를 호출한다 */
-int move_block(int);/*이동, 회전키가 입력되면, 충돌검사후 이동시킨다*/
-int drop(void);/* 충돌되기 전까지 블록을 다운시킨다.*/
-int collision_test(int); /* 블록이 이동, 회전하기 전에 충돌되는 블록이나 벽이 없는지 확인하는 함수*/
-int check_one_line(void);/* 한줄이 완성되었는지 확인하는 함수. 완성되면 한줄을 지우고, 점수에 1000점을 더한다*/
-int print_result(void);/* 메뉴에서 기록출력시 호출되어 기록을 출력하는 함수*/
-int search_result(void); /*메뉴에서 기록검색시 호출되어 기러고을 검색하는 함수*/
-int getch(void);/*문자를 바로 입력 받을 수 있는 함수*/
+int next_block_number = 0; */
+/*다음 블록 넘버 변수 *//*
+
+int block_state = 0; */
+/*블록 상태, 회전함에 따라 변한다*//*
+
+int x = 3, y = 0; */
+/*블록이 현재 테트리스판 어디에 위치해 있는지 알려주는 변수*//*
+
+int game = GAME_END; */
+/*게임 상태 변수, 게임이 시작되거나 종료됨에 따라 변한다*//*
+
+int best_point = 0; */
+/* 게임 최고 점수를 알려주는 변수*//*
+
+long point = 0; */
+/* 현재 게임중 득점을 알려주는 변수 *//*
+
+
+// initialize
+int display_menu(void); */
+/* 메뉴를 보여줌 *//*
+
+// initialize
+int init_tetris_table(void); */
+/*테트리스판을 초기화 한다. 벽과 공간을 나눔*//*
+
+// initialize
+int display_tetris_table(void); */
+/* 현재의 테트리스판을 보여준다. 블록이 놓이고 쌓인 현재 상태를 보여줌*//*
+
+// initialize
+int game_start(void); */
+/* 게임 시작시 호출되는 함수.   game변수를 참조하여 게임을 종료하거나 시작함 . 게임 시작시 refresh()함수가 콜백함수로 설정되고 타이머를 등록함. *//*
+
+// process
+int refresh(int);*/
+/* 타이머에 콜백함수로 등록되어 계속 새로고침 하면서 호출되는 함수. 키입력 확인,  화면새로고침, 한줄완성검사등의 계속 상태가 변함을 확인해야 되는 함수를 호출한다 *//*
+
+// process
+int move_block(int);*/
+/*이동, 회전키가 입력되면, 충돌검사후 이동시킨다*//*
+
+// process
+int drop(void);*/
+/* 충돌되기 전까지 블록을 다운시킨다.*//*
+
+// process
+int collision_test(int); */
+/* 블록이 이동, 회전하기 전에 충돌되는 블록이나 벽이 없는지 확인하는 함수*//*
+
+// process
+int check_one_line(void);*/
+/* 한줄이 완성되었는지 확인하는 함수. 완성되면 한줄을 지우고, 점수에 1000점을 더한다*//*
+
+// result
+int print_result(void);*/
+/* 메뉴에서 기록출력시 호출되어 기록을 출력하는 함수*//*
+
+// result
+int search_result(void); */
+/*메뉴에서 기록검색시 호출되어 기러고을 검색하는 함수*//*
+
+// process
+int getch(void);*/
+/*문자를 바로 입력 받을 수 있는 함수*//*
+
 
 int main(void)
 {
@@ -175,7 +240,9 @@ int main(void)
 	return 0;
 }
 
-/* 메뉴를 보여줌 */
+*/
+/* 메뉴를 보여줌 *//*
+
 int display_menu(void)
 {
 	int menu = 0;
@@ -206,7 +273,9 @@ int display_menu(void)
 	return 0;
 }
 
-/* 게임 시작시 호출되는 함수.   game변수를 참조하여 게임을 종료하거나 시작함 . 게임 시작시 refresh()함수가 콜백함수로 설정되고 타이머를 등록함. */
+*/
+/* 게임 시작시 호출되는 함수.   game변수를 참조하여 게임을 종료하거나 시작함 . 게임 시작시 refresh()함수가 콜백함수로 설정되고 타이머를 등록함. *//*
+
 int game_start(void)
 {
 	static struct sigaction sa;
@@ -219,23 +288,33 @@ int game_start(void)
 	{
 		init_tetris_table();
 
-		/* Install timer_handler as the signal handler for SIGVTALRM. */
+		*/
+/* Install timer_handler as the signal handler for SIGVTALRM. *//*
+
 		memset(&sa, 0, sizeof (sa));
 		sa.sa_handler = (__sighandler_t) &refresh;
 		sigaction(SIGVTALRM, &sa, NULL);
 
-		/* Configure the timer to expire after 250 msec... */
+		*/
+/* Configure the timer to expire after 250 msec... *//*
+
 		timer.it_value.tv_sec = 0;
 		timer.it_value.tv_usec = 1;
 
-		/* ... and every 250 msec after that. */
+		*/
+/* ... and every 250 msec after that. *//*
+
 		timer.it_interval.tv_sec = 0;
 		timer.it_interval.tv_usec = 1;
 
-		/* Start a virtual timer. It counts down whenever this process is executing. */
+		*/
+/* Start a virtual timer. It counts down whenever this process is executing. *//*
+
 		setitimer(ITIMER_VIRTUAL, &timer, NULL);
 
-		/* Do busy work.  */
+		*/
+/* Do busy work.  *//*
+
 
 		while(1)
 		{
@@ -285,7 +364,9 @@ int game_start(void)
   return 0;
 }
 
-/* 현재의 테트리스판을 보여준다. 블록이 놓이고 쌓인 현재 상태를 보여줌*/
+*/
+/* 현재의 테트리스판을 보여준다. 블록이 놓이고 쌓인 현재 상태를 보여줌*//*
+
 int display_tetris_table(void)
 {
 	int i, j;
@@ -346,7 +427,9 @@ int display_tetris_table(void)
 	return 0;
 }
 
-/*테트리스판을 초기화 한다. 벽과 공간을 나눔*/
+*/
+/*테트리스판을 초기화 한다. 벽과 공간을 나눔*//*
+
 int init_tetris_table(void)
 {
 	int i = 0, j = 0;
@@ -367,7 +450,9 @@ int init_tetris_table(void)
 	return 0;
 }
 
-/*문자를 바로 입력 받을 수 있는 함수*/
+*/
+/*문자를 바로 입력 받을 수 있는 함수*//*
+
 int getch(void)
 {
              char   ch;
@@ -403,7 +488,9 @@ int getch(void)
             return (error == 1 ? (int) ch : -1 );
 }
 
-/* 타이머에 콜백함수로 등록되어 계속 새로고침 하면서 호출되는 함수. 키입력 확인,  화면새로고침, 한줄완성검사등의 계속 상태가 변함을 확인해야 되는 함수를 호출한다 */
+*/
+/* 타이머에 콜백함수로 등록되어 계속 새로고침 하면서 호출되는 함수. 키입력 확인,  화면새로고침, 한줄완성검사등의 계속 상태가 변함을 확인해야 되는 함수를 호출한다 *//*
+
 int refresh(int signum)
 {
 	static int downcount = 0;
@@ -507,7 +594,9 @@ int refresh(int signum)
 	return 0;
 }
 
-/*이동, 회전키가 입력되면, 충돌검사후 이동시킨다*/
+*/
+/*이동, 회전키가 입력되면, 충돌검사후 이동시킨다*//*
+
 int move_block(int command)
 {
 	int i, j;
@@ -586,7 +675,9 @@ int move_block(int command)
 	return 0;
 }
 
-/* 블록이 이동, 회전하기 전에 충돌되는 블록이나 벽이 없는지 확인하는 함수*/
+*/
+/* 블록이 이동, 회전하기 전에 충돌되는 블록이나 벽이 없는지 확인하는 함수*//*
+
 int collision_test(int command)
 {
 	int i, j;
@@ -664,7 +755,9 @@ int collision_test(int command)
 	return 0;
 }
 
-/* 충돌되기 전까지 블록을 다운시킨다.*/
+*/
+/* 충돌되기 전까지 블록을 다운시킨다.*//*
+
 int drop(void)
 {
 	while(!collision_test(DOWN))
@@ -673,7 +766,9 @@ int drop(void)
 	return 0;
 }
 
-/* 한줄이 완성되었는지 확인하는 함수. 완성되면 한줄을 지우고, 점수에 1000점을 더한다*/
+*/
+/* 한줄이 완성되었는지 확인하는 함수. 완성되면 한줄을 지우고, 점수에 1000점을 더한다*//*
+
 int check_one_line(void)
 {
 	int i, j;
@@ -707,7 +802,9 @@ int check_one_line(void)
 	return 0;
 }
 
-/*메뉴에서 기록검색시 호출되어 기러고을 검색하는 함수*/
+*/
+/*메뉴에서 기록검색시 호출되어 기러고을 검색하는 함수*//*
+
 int search_result(void)
 {
 	FILE *fp = NULL;
@@ -761,7 +858,9 @@ int search_result(void)
 	return 0;
 }
 
-/* 메뉴에서 기록출력시 호출되어 기록을 출력하는 함수*/
+*/
+/* 메뉴에서 기록출력시 호출되어 기록을 출력하는 함수*//*
+
 int print_result(void)
 {
 	FILE *fp = NULL;
@@ -806,3 +905,4 @@ int print_result(void)
 }
 
 
+*/
