@@ -5,9 +5,9 @@
 #include <sys/time.h>
 #include <termios.h>
 #include <unistd.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
 #include <time.h>
+#include <fcntl.h>
+
 #include "define.h"
 #include "block.h"
 
@@ -46,12 +46,14 @@ int display_menu(void); /* 메뉴를 보여줌 */
 int init_tetris_table(void); /*테트리스판을 초기화 한다. 벽과 공간을 나눔*/
 int display_tetris_table(void); /* 현재의 테트리스판을 보여준다. 블록이 놓이고 쌓인 현재 상태를 보여줌*/
 int game_start(void); /* 게임 시작시 호출되는 함수.   game변수를 참조하여 게임을 종료하거나 시작함 . 게임 시작시 refresh()함수가 콜백함수로 설정되고 타이머를 등록함. */
-int refresh(int);/* 타이머에 콜백함수로 등록되어 계속 새로고침 하면서 호출되는 함수. 키입력 확인,  화면새로고침, 한줄완성검사등의 계속 상태가 변함을 확인해야 되는 함수를 호출한다 */
+int refresh(void);/* 타이머에 콜백함수로 등록되어 계속 새로고침 하면서 호출되는 함수. 키입력 확인,  화면새로고침, 한줄완성검사등의 계속 상태가 변함을 확인해야 되는 함수를 호출한다 */
 int move_block(int);/*이동, 회전키가 입력되면, 충돌검사후 이동시킨다*/
 int drop(void);/* 충돌되기 전까지 블록을 다운시킨다.*/
 int collision_test(int); /* 블록이 이동, 회전하기 전에 충돌되는 블록이나 벽이 없는지 확인하는 함수*/
 int check_one_line(void);/* 한줄이 완성되었는지 확인하는 함수. 완성되면 한줄을 지우고, 점수에 1000점을 더한다*/
+int GetKeyDown(void);
 int getch(void);/*문자를 바로 입력 받을 수 있는 함수*/
+int kbhit(void);
 
 /* 메뉴를 보여줌 */
 int display_menu(void)
@@ -97,26 +99,11 @@ int game_start(void)
     {
         init_tetris_table();
 
-        /* Install timer_handler as the signal handler for SIGVTALRM. */
-        memset(&sa, 0, sizeof (sa));
-        sa.sa_handler = (__sighandler_t) &refresh;
-        sigaction(SIGVTALRM, &sa, NULL);
-
-        /* Configure the timer to expire after 250 msec... */
-        timer.it_value.tv_sec = 0;
-        timer.it_value.tv_usec = 1;
-
-        /* ... and every 250 msec after that. */
-        timer.it_interval.tv_sec = 0;
-        timer.it_interval.tv_usec = 1;
-
-        /* Start a virtual timer. It counts down whenever this process is executing. */
-        setitimer(ITIMER_VIRTUAL, &timer, NULL);
-
         /* Do busy work.  */
-
         while(1)
         {
+            refresh();
+
             if(game == GAME_END)
             {
 
@@ -245,44 +232,8 @@ int init_tetris_table(void)
     return 0;
 }
 
-/*문자를 바로 입력 받을 수 있는 함수*/
-int getch(void)
-{
-    char   ch;
-    int   error;
-    static struct termios Otty, Ntty;
-
-    fflush(stdout);
-    tcgetattr(0, &Otty);
-    Ntty = Otty;
-    Ntty.c_iflag  =  0;
-    Ntty.c_oflag  =  0;
-    Ntty.c_lflag &= ~ICANON;
-#if 1
-    Ntty.c_lflag &= ~ECHO;
-#else
-    Ntty.c_lflag |=  ECHO;
-#endif
-    Ntty.c_cc[VMIN]  = CCHAR;
-    Ntty.c_cc[VTIME] = CTIME;
-
-#if 1
-#define FLAG TCSAFLUSH
-#else
-#define FLAG TCSANOW
-#endif
-
-    if (0 == (error = tcsetattr(0, FLAG, &Ntty)))
-    {
-        error  = read(0, &ch, 1 );
-        error += tcsetattr(0, FLAG, &Otty);
-    }
-
-    return (error == 1 ? (int) ch : -1 );
-}
-
 /* 타이머에 콜백함수로 등록되어 계속 새로고침 하면서 호출되는 함수. 키입력 확인,  화면새로고침, 한줄완성검사등의 계속 상태가 변함을 확인해야 되는 함수를 호출한다 */
-int refresh(int signum)
+int refresh(void) //int signum
 {
     static int downcount = 0;
     static int setcount = 0;
@@ -353,9 +304,7 @@ int refresh(int signum)
         setcount %= 10;
     }
 
-    ch = getch();
-
-    switch(ch)
+    switch(GetKeyDown())
     {
         case 74	 :
         case 106 :	move_block(LEFT);
@@ -580,6 +529,79 @@ int check_one_line(void)
                 }
             }
         }
+    }
+
+    return 0;
+}
+
+//키보드의 입력을 받고, 입력된 키의 값을 반환하는 함수
+int GetKeyDown(void)
+{
+    if (kbhit() != 0)
+    {
+        return getch();
+    }
+    return 0;
+}
+
+/*문자를 바로 입력 받을 수 있는 함수*/
+int getch(void)
+{
+    char   ch;
+    int   error;
+    static struct termios Otty, Ntty;
+
+    fflush(stdout);
+    tcgetattr(0, &Otty);
+    Ntty = Otty;
+    Ntty.c_iflag  =  0;
+    Ntty.c_oflag  =  0;
+    Ntty.c_lflag &= ~ICANON;
+#if 1
+    Ntty.c_lflag &= ~ECHO;
+#else
+    Ntty.c_lflag |=  ECHO;
+#endif
+    Ntty.c_cc[VMIN]  = CCHAR;
+    Ntty.c_cc[VTIME] = CTIME;
+
+#if 1
+#define FLAG TCSAFLUSH
+#else
+#define FLAG TCSANOW
+#endif
+
+    if (0 == (error = tcsetattr(0, FLAG, &Ntty)))
+    {
+        error  = read(0, &ch, 1 );
+        error += tcsetattr(0, FLAG, &Otty);
+    }
+
+    return (error == 1 ? (int) ch : -1 );
+}
+
+int kbhit(void)
+{
+    struct termios oldt, newt;
+    int ch;
+    int oldf;
+
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+
+    ch = getchar();
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+    if(ch != EOF)
+    {
+        ungetc(ch, stdin);
+        return 1;
     }
 
     return 0;
